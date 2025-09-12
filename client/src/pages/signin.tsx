@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+// ...existing code...
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
@@ -82,41 +83,51 @@ export default function SignInPage() {
   }, [pendingUser]);
 
   return (
-    <div className="min-h-screen bg-space-gradient text-white p-6">
-      <h1 className="text-3xl font-bold">Sign In</h1>
-      {isAdminMode && (
-        <p className="mt-2 text-earth-muted text-sm">Admin sign-in: use username <span className="text-white">admin123</span> and your password.</p>
-      )}
-      <div className="mt-6 max-w-md space-y-3">
-        {pendingUser && (
-          <div className="p-3 rounded-lg bg-[var(--earth-card)] border border-[var(--earth-border)]">
-            <div className="font-medium">@{pendingUser}</div>
-            <div className="text-sm text-earth-muted">Your application is pending admin approval.</div>
-            <div className="text-xs text-earth-muted mt-1">We’ll check automatically and continue once approved{checking ? '…' : '.'}</div>
-            <div className="mt-2 flex gap-2">
-              <Button variant="secondary" onClick={() => setPendingUser(null)}>Back to Sign In</Button>
-              <Button variant="secondary" onClick={() => setPendingUser(pendingUser)} disabled>
-                {checking ? 'Checking…' : 'Waiting'}
-              </Button>
-            </div>
-          </div>
+    <div
+      className="min-h-screen w-full flex items-center justify-center"
+      style={{
+        backgroundImage: `url(/Gemini_Generated_Image_9g05hx9g05hx9g05.png)`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className="bg-black bg-opacity-60 rounded-xl p-8 max-w-md w-full text-white shadow-lg">
+        <h1 className="text-3xl font-bold">Sign In</h1>
+        {isAdminMode && (
+          <p className="mt-2 text-earth-muted text-sm">Admin sign-in: use username <span className="text-white">admin123</span> and your password.</p>
         )}
-        <label className="block">
-          <span className="block text-sm text-earth-muted mb-1">Username</span>
-          <input className="w-full rounded-lg px-3 py-2 text-[var(--foreground)]" value={username} onChange={(e) => setUsername(e.target.value)} />
-        </label>
-        <label className="block">
-          <span className="block text-sm text-earth-muted mb-1">Password</span>
-          <input type="password" className="w-full rounded-lg px-3 py-2 text-[var(--foreground)]" value={password} onChange={(e) => setPassword(e.target.value)} />
-        </label>
-        {error && <div className="text-red-400 text-sm">{error}</div>}
-        <div className="pt-2">
-          <Button className="bg-earth-orange hover:bg-earth-orange-hover" onClick={signin} disabled={loading || !username || !password}>
-            {loading ? 'Signing in…' : 'Sign In'}
-          </Button>
-        </div>
-        <div className="text-earth-muted text-sm">
-          New here? <a href="/signup" className="text-white underline">Create an account</a>
+        <div className="mt-6 space-y-3">
+          {pendingUser && (
+            <div className="p-3 rounded-lg bg-[var(--earth-card)] border border-[var(--earth-border)]">
+              <div className="font-medium">@{pendingUser}</div>
+              <div className="text-sm text-earth-muted">Your application is pending admin approval.</div>
+              <div className="text-xs text-earth-muted mt-1">We’ll check automatically and continue once approved{checking ? '…' : '.'}</div>
+              <div className="mt-2 flex gap-2">
+                <Button variant="secondary" onClick={() => setPendingUser(null)}>Back to Sign In</Button>
+                <Button variant="secondary" onClick={() => setPendingUser(pendingUser)} disabled>
+                  {checking ? 'Checking…' : 'Waiting'}
+                </Button>
+              </div>
+            </div>
+          )}
+          <label className="block">
+            <span className="block text-sm text-earth-muted mb-1">Username</span>
+            <input className="w-full rounded-lg px-3 py-2 text-[var(--foreground)]" value={username} onChange={(e) => setUsername(e.target.value)} />
+          </label>
+          <label className="block">
+            <span className="block text-sm text-earth-muted mb-1">Password</span>
+            <input type="password" className="w-full rounded-lg px-3 py-2 text-[var(--foreground)]" value={password} onChange={(e) => setPassword(e.target.value)} />
+          </label>
+          {error && <div className="text-red-400 text-sm">{error}</div>}
+          <div className="pt-2">
+            <Button className="bg-earth-orange hover:bg-earth-orange-hover" onClick={signin} disabled={loading || !username || !password}>
+              {loading ? 'Signing in…' : 'Sign In'}
+            </Button>
+          </div>
+          <div className="text-earth-muted text-sm">
+            New here? <a href="/signup" className="text-white underline">Create an account</a>
+          </div>
         </div>
       </div>
     </div>
