@@ -99,7 +99,15 @@ export default function AdminPortal() {
   };
   if (role !== 'admin') {
     return (
-      <div className="min-h-screen bg-space-gradient text-white p-6 flex flex-col items-center justify-center">
+      <div 
+        className="min-h-screen bg-space-gradient text-white p-6 flex flex-col items-center justify-center"
+        style={{
+          backgroundImage: `url(/api/image/123.png)`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
         <h1 className="text-3xl font-bold mb-4">Admin Portal</h1>
         <p className="text-earth-muted">Access denied. Please log in as an admin.</p>
       </div>
@@ -107,7 +115,15 @@ export default function AdminPortal() {
   }
 
   return (
-    <div className="min-h-screen bg-space-gradient text-white p-6">
+    <div 
+      className="min-h-screen bg-space-gradient text-white p-6"
+      style={{
+        backgroundImage: `url(/api/image/123.png)`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-3xl font-bold">Admin Portal</h1>
         <Button variant="secondary" onClick={clear}>Logout</Button>

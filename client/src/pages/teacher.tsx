@@ -37,7 +37,15 @@ export default function TeacherAppShell() {
   const Guard = useMemo(() => {
     if (role !== "teacher") {
       return (
-        <div className="min-h-screen bg-space-gradient text-white p-6 flex flex-col items-center justify-center">
+        <div 
+          className="min-h-screen bg-space-gradient text-white p-6 flex flex-col items-center justify-center"
+          style={{
+            backgroundImage: `url(/api/image/777.jpg)`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        >
           <h1 className="text-3xl font-bold mb-4">Teacher Portal</h1>
           <p className="text-earth-muted">Access denied. Please log in as a teacher.</p>
         </div>
@@ -49,7 +57,15 @@ export default function TeacherAppShell() {
   if (Guard) return Guard;
 
   return (
-    <div className="min-h-screen bg-space-gradient text-white p-6">
+    <div 
+      className="min-h-screen bg-space-gradient text-white p-6"
+      style={{
+        backgroundImage: `url(/api/image/777.jpg)`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold">Teacher Portal</h1>

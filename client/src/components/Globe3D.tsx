@@ -8,16 +8,24 @@ export function Globe3D() {
   const sceneRef = useRef<THREE.Scene>();
   const rendererRef = useRef<THREE.WebGLRenderer>();
   const earthRef = useRef<THREE.Object3D>();
+  const atmosphereRef = useRef<THREE.Object3D>();
+  const cameraRef = useRef<THREE.PerspectiveCamera>();
   const isMouseDownRef = useRef(false);
   const mouseRef = useRef({ x: 0, y: 0 });
-  const targetRotationRef = useRef({ x: 0, y: 0 });
-  const currentRotationRef = useRef({ x: 0, y: 0 });
+  const cameraControlsRef = useRef({
+    phi: Math.PI / 2,
+    theta: 0,
+    radius: 5,
+    targetPhi: Math.PI / 2,
+    targetTheta: 0,
+    targetRadius: 5
+  });
+  const earthRotationRef = useRef(0);
 
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    // Scene setup
-  const scene = new THREE.Scene();
+    const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({
       canvas: canvasRef.current,
@@ -25,20 +33,10 @@ export function Globe3D() {
       alpha: true,
       powerPreference: "high-performance"
     });
-    // Size renderer to container
-    // Fit camera so the globe fills most of the canvas
-    const fitCameraToRadius = (radius: number, fill = 0.96) => {
-      const rect = canvasRef.current?.getBoundingClientRect();
-      const aspect = rect ? rect.width / rect.height : 1;
-      const vFov = THREE.MathUtils.degToRad(camera.fov);
-      const distY = radius / (fill * Math.tan(vFov / 2));
-      // For width fit, use horizontal fov derived from aspect
-      const hFov = 2 * Math.atan(Math.tan(vFov / 2) * aspect);
-      const distX = radius / (fill * Math.tan(hFov / 2));
-      const dist = Math.max(distX, distY);
-      camera.position.set(0, 0, dist);
-      camera.lookAt(0, 0, 0);
-    };
+
+    sceneRef.current = scene;
+    rendererRef.current = renderer;
+    cameraRef.current = camera;
 
     const sizeToContainer = () => {
       if (!canvasRef.current) return;
@@ -47,101 +45,91 @@ export function Globe3D() {
       camera.updateProjectionMatrix();
       renderer.setSize(rect.width, rect.height, false);
     };
+
     sizeToContainer();
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    
-    // Enhanced renderer settings for better material rendering
     renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.25;
 
-    sceneRef.current = scene;
-    rendererRef.current = renderer;
-
-    // Load GLB model with proper texture handling
-    const loader = new GLTFLoader();
-    // Wire DRACO (decoder files are copied to /public/draco)
-    try {
-      const dracoLoader = new DRACOLoader();
-      dracoLoader.setDecoderPath('/draco/');
-      loader.setDRACOLoader(dracoLoader);
-    } catch (e) {
-      console.warn('DRACO not configured:', e);
-    }
-    
-    // Utility to surface status to the user (hover over globe)
-    const setStatus = (msg: string) => {
-      if (canvasRef.current) {
-        canvasRef.current.title = msg;
-        canvasRef.current.setAttribute('data-status', msg);
-      }
-      console.log(msg);
-    };
-
-  // Create Earth immediately - don't wait for GLB loading
-    const createEarth = () => {
-      // Create detailed Earth sphere with realistic textures
-  const geometry = new THREE.SphereGeometry(1.7, 128, 64);
+    const updateCameraPosition = () => {
+      const controls = cameraControlsRef.current;
+      const x = controls.radius * Math.sin(controls.phi) * Math.cos(controls.theta);
+      const y = controls.radius * Math.cos(controls.phi);
+      const z = controls.radius * Math.sin(controls.phi) * Math.sin(controls.theta);
       
-      // Create realistic Earth textures using canvas
+      camera.position.set(x, y, z);
+      camera.lookAt(0, 0, 0);
+    };
+    updateCameraPosition();
+
+    const createEarth = () => {
+      // Fallback Earth - only used if GLB model fails to load
+      const geometry = new THREE.SphereGeometry(2.25, 64, 32);
+      
       const canvas = document.createElement('canvas');
-      canvas.width = 1024;
-      canvas.height = 512;
+      canvas.width = 2048;
+      canvas.height = 1024;
       const ctx = canvas.getContext('2d')!;
       
-      // Create gradient for ocean depth
-      const oceanGradient = ctx.createRadialGradient(512, 256, 0, 512, 256, 512);
-      oceanGradient.addColorStop(0, '#4A90E2');
-      oceanGradient.addColorStop(0.7, '#2E5BBA');
-      oceanGradient.addColorStop(1, '#1E3A8A');
-      
-      // Ocean background
+      // More realistic ocean gradient
+      const oceanGradient = ctx.createLinearGradient(0, 0, 0, 1024);
+      oceanGradient.addColorStop(0, '#0066cc');
+      oceanGradient.addColorStop(0.5, '#004499');
+      oceanGradient.addColorStop(1, '#002266');
       ctx.fillStyle = oceanGradient;
-      ctx.fillRect(0, 0, 1024, 512);
+      ctx.fillRect(0, 0, 2048, 1024);
       
-      // Add realistic continent shapes with varied greens
+      // More realistic continent shapes and colors
       const continents = [
         // North America
-        { x: 150, y: 150, w: 180, h: 120, color: '#228B22' },
-        { x: 120, y: 180, w: 100, h: 80, color: '#32CD32' },
+        { x: 200, y: 200, w: 400, h: 250, color: '#2d5016' },
+        { x: 250, y: 150, w: 300, h: 150, color: '#3a6b1c' },
         
-        // South America
-        { x: 200, y: 280, w: 80, h: 140, color: '#228B22' },
-        
-        // Europe/Asia
-        { x: 400, y: 120, w: 300, h: 100, color: '#90EE90' },
-        { x: 500, y: 160, w: 200, h: 80, color: '#228B22' },
+        // South America  
+        { x: 350, y: 450, w: 200, h: 350, color: '#1f3d0f' },
+        { x: 400, y: 500, w: 150, h: 250, color: '#4a7c2a' },
         
         // Africa
-        { x: 420, y: 220, w: 120, h: 180, color: '#DAA520' },
+        { x: 900, y: 250, w: 250, h: 450, color: '#8B4513' },
+        { x: 950, y: 200, w: 200, h: 400, color: '#A0522D' },
+        
+        // Europe
+        { x: 850, y: 150, w: 200, h: 120, color: '#228B22' },
+        
+        // Asia
+        { x: 1100, y: 100, w: 600, h: 350, color: '#2F4F2F' },
+        { x: 1200, y: 200, w: 400, h: 200, color: '#8FBC8F' },
         
         // Australia
-        { x: 700, y: 320, w: 120, h: 60, color: '#D2691E' },
+        { x: 1400, y: 600, w: 200, h: 120, color: '#CD853F' },
         
-        // Greenland
-        { x: 320, y: 80, w: 60, h: 40, color: '#F0F8FF' }
+        // Ice caps
+        { x: 0, y: 0, w: 2048, h: 80, color: '#F0F8FF' },
+        { x: 0, y: 944, w: 2048, h: 80, color: '#F0F8FF' }
       ];
       
       continents.forEach(continent => {
         ctx.fillStyle = continent.color;
-        ctx.fillRect(continent.x, continent.y, continent.w, continent.h);
+        ctx.beginPath();
+        ctx.roundRect(continent.x, continent.y, continent.w, continent.h, 20);
+        ctx.fill();
         
-        // Add some texture variation
-        ctx.fillStyle = continent.color + '80';
-        ctx.fillRect(continent.x + 10, continent.y + 10, continent.w - 20, continent.h - 20);
+        // Add some texture
+        ctx.fillStyle = continent.color + '60';
+        ctx.beginPath();
+        ctx.roundRect(continent.x + 15, continent.y + 15, continent.w - 30, continent.h - 30, 15);
+        ctx.fill();
       });
       
-      // Add cloud patterns
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-      for (let i = 0; i < 20; i++) {
-        const x = Math.random() * 1024;
-        const y = Math.random() * 512;
-        const w = 50 + Math.random() * 100;
-        const h = 20 + Math.random() * 40;
-        ctx.fillRect(x, y, w, h);
+      // Add cloud layer
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+      for (let i = 0; i < 50; i++) {
+        const x = Math.random() * 2048;
+        const y = Math.random() * 1024;
+        const radius = 30 + Math.random() * 80;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
       }
       
       const texture = new THREE.CanvasTexture(canvas);
@@ -150,104 +138,69 @@ export function Globe3D() {
       
       const material = new THREE.MeshStandardMaterial({ 
         map: texture,
-        roughness: 0.7,
-        metalness: 0.1,
-        envMapIntensity: 1.2
+        roughness: 0.6, // Reduced for more reflection and brightness
+        metalness: 0.0,
+        envMapIntensity: 2.0 // Increased from 1.0 to 2.0 for more brightness
       });
       
       const earth = new THREE.Mesh(geometry, material);
-      earth.castShadow = true;
-      earth.receiveShadow = true;
-  scene.add(earth);
+      scene.add(earth);
       earthRef.current = earth;
-  // After creating fallback, fit camera to atmosphere (created below with radius 2.2)
-  setStatus('Fallback Earth created (awaiting GLB)');
     };
-    
-    // Create Earth immediately
+
     createEarth();
-    
-    // Also try to load GLB as enhancement (optional)
-  const url = '/api/models/Earth_1_12756.glb';
-  setStatus(`[GLB] trying ${url}`);
-  loader.load(
-    url,
+
+    const loader = new GLTFLoader();
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('/draco/');
+    loader.setDRACOLoader(dracoLoader);
+
+    loader.load(
+      '/api/models/Earth_1_12756.glb', // Using the specific Earth model from public folder
       (gltf) => {
         const model = gltf.scene;
-        console.log('[GLB] loaded. children:', model.children.length);
-
-        // Quick sanity: does it contain any mesh?
-        let meshCount = 0;
-        model.traverse((obj) => {
-          if ((obj as THREE.Mesh).isMesh) meshCount++;
-        });
-        console.log('[GLB] meshCount:', meshCount);
-        if (meshCount === 0) {
-          console.warn('[GLB] No meshes found in model. Keeping fallback.');
-          return; // keep canvas earth while we try next
-        }
-
-        // Fit and center the model to target radius ~1.2
+        
         const box = new THREE.Box3().setFromObject(model);
         const size = box.getSize(new THREE.Vector3());
         const maxAxis = Math.max(size.x, size.y, size.z) || 1;
-  const targetRadius = 1.7;
-        const currentRadius = maxAxis / 2;
-  const scaleFactor = targetRadius / currentRadius;
+        const targetRadius = 2.25; // Increased to match new Earth size
+        const scaleFactor = targetRadius / (maxAxis / 2);
         model.scale.multiplyScalar(scaleFactor);
-
-        // Recompute box after scaling and center at origin
+        
         const box2 = new THREE.Box3().setFromObject(model);
         const center = box2.getCenter(new THREE.Vector3());
         model.position.sub(center);
-
-        // Improve materials
+        
         model.traverse((child) => {
           if ((child as THREE.Mesh).isMesh) {
             const mesh = child as THREE.Mesh;
-            mesh.castShadow = true;
-            mesh.receiveShadow = true;
             const mat = mesh.material as THREE.Material | THREE.Material[];
             const fixMat = (m: THREE.Material) => {
-              // Only adjust known PBR materials; leave others intact
-              if ((m as any).roughness !== undefined) {
-                (m as any).roughness = 0.6;
-              }
-              if ((m as any).metalness !== undefined) {
-                (m as any).metalness = 0.1;
-              }
-              if ((m as any).envMapIntensity !== undefined) {
-                (m as any).envMapIntensity = 1.2;
-              }
+              if ((m as any).roughness !== undefined) (m as any).roughness = 0.6; // Reduced for more brightness
+              if ((m as any).metalness !== undefined) (m as any).metalness = 0.0;
+              if ((m as any).envMapIntensity !== undefined) (m as any).envMapIntensity = 2.0; // Increased for brightness
               m.transparent = false;
               m.side = THREE.FrontSide;
               m.needsUpdate = true;
             };
-            if (Array.isArray(mat)) mat.forEach(fixMat); else if (mat) fixMat(mat);
+            if (Array.isArray(mat)) mat.forEach(fixMat); 
+            else if (mat) fixMat(mat);
           }
         });
-
-        // Swap fallback with the real model
+        
         if (earthRef.current) scene.remove(earthRef.current);
         scene.add(model);
         earthRef.current = model;
-  if (canvasRef.current) canvasRef.current.dataset.model = url;
-        setStatus(`[GLB] displayed ${url} (scaleFactor=${scaleFactor.toFixed(3)})`);
-  // Refocus camera to fit the earth + atmosphere nicely
-  fitCameraToRadius(2.2, 0.96);
-          },
-          (progress) => {
-            if (progress.total) console.log('[GLB] progress', url, Math.round((progress.loaded / progress.total) * 100) + '%');
-          },
-          (error) => {
-            console.warn('[GLB] failed', url, error);
-            setStatus(`[GLB] failed ${url}. Using fallback.`);
-          }
+      },
+      undefined,
+      (error) => {
+        console.warn('GLB loading failed, using fallback Earth:', error);
+      }
     );
 
-    // Atmosphere glow effect
-  const atmosphereGeometry = new THREE.SphereGeometry(2.2, 64, 32);
-  const atmosphereMaterial = new THREE.ShaderMaterial({
+    // Simple atmosphere - consistent blue glow
+    const atmosphereGeometry = new THREE.SphereGeometry(2.7, 64, 32);
+    const atmosphereMaterial = new THREE.ShaderMaterial({
       vertexShader: `
         varying vec3 vNormal;
         void main() {
@@ -258,8 +211,8 @@ export function Globe3D() {
       fragmentShader: `
         varying vec3 vNormal;
         void main() {
-          float intensity = pow(0.6 - dot(vNormal, vec3(0, 0, 1.0)), 2.0);
-          gl_FragColor = vec4(0.3, 0.6, 1.0, 1.0) * intensity;
+          float intensity = pow(0.65 - dot(vNormal, vec3(0, 0, 1.0)), 1.8);
+          gl_FragColor = vec4(0.3, 0.6, 1.0, intensity * 0.8);
         }
       `,
       blending: THREE.AdditiveBlending,
@@ -267,42 +220,24 @@ export function Globe3D() {
       transparent: true
     });
 
-  const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+    const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
     scene.add(atmosphere);
+    atmosphereRef.current = atmosphere;
 
-    // Enhanced lighting setup for realistic Earth rendering
-  const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+    // Brighter lighting specifically for the Earth
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4); // Increased from 0.8 to 1.4
     scene.add(ambientLight);
 
-    // Main sun light
-  const sunLight = new THREE.DirectionalLight(0xffffff, 2.0);
-    sunLight.position.set(5, 3, 5);
-    sunLight.castShadow = true;
-    sunLight.shadow.mapSize.width = 2048;
-    sunLight.shadow.mapSize.height = 2048;
-    sunLight.shadow.camera.near = 0.5;
-    sunLight.shadow.camera.far = 50;
-    scene.add(sunLight);
+    // Main light - stronger illumination for the Earth
+    const mainLight = new THREE.DirectionalLight(0xffffff, 2.0); // Increased from 1.2 to 2.0
+    mainLight.position.set(2, 2, 2);
+    scene.add(mainLight);
 
-    // Fill light for the dark side
-  const fillLight = new THREE.DirectionalLight(0x4fc3f7, 0.6);
-    fillLight.position.set(-5, 2, -3);
+    // Secondary fill light - brighter to eliminate any dullness
+    const fillLight = new THREE.DirectionalLight(0xffffff, 1.2); // Increased from 0.6 to 1.2
+    fillLight.position.set(-2, 1, -1);
     scene.add(fillLight);
 
-    // Rim light for atmosphere effect
-  const rimLight = new THREE.PointLight(0x87ceeb, 0.6);
-    rimLight.position.set(0, 0, 3);
-    scene.add(rimLight);
-
-    // Add environment map for reflections
-    const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    const envTexture = pmremGenerator.fromScene(new THREE.Scene()).texture;
-    scene.environment = envTexture;
-
-  // Adjust camera to fit the atmosphere/globe size
-  fitCameraToRadius(2.2, 0.96);
-
-    // Mouse interaction handlers
     const handleMouseDown = (event: MouseEvent) => {
       isMouseDownRef.current = true;
       mouseRef.current.x = event.clientX;
@@ -318,60 +253,56 @@ export function Globe3D() {
         const deltaX = event.clientX - mouseRef.current.x;
         const deltaY = event.clientY - mouseRef.current.y;
 
-        targetRotationRef.current.y += deltaX * 0.01;
-        targetRotationRef.current.x += deltaY * 0.01;
+        cameraControlsRef.current.targetTheta += deltaX * 0.01;
+        cameraControlsRef.current.targetPhi += deltaY * 0.01;
+        
+        cameraControlsRef.current.targetPhi = Math.max(0.1, Math.min(Math.PI - 0.1, cameraControlsRef.current.targetPhi));
 
         mouseRef.current.x = event.clientX;
         mouseRef.current.y = event.clientY;
       }
     };
 
-    // Add event listeners
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      cameraControlsRef.current.targetRadius += event.deltaY * 0.01;
+      cameraControlsRef.current.targetRadius = Math.max(2, Math.min(10, cameraControlsRef.current.targetRadius));
+    };
+
     canvasRef.current.addEventListener('mousedown', handleMouseDown);
+    canvasRef.current.addEventListener('wheel', handleWheel);
     document.addEventListener('mouseup', handleMouseUp);
     document.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('resize', sizeToContainer);
 
-    // Handle window resize to keep canvas matched to container
-    const handleResize = () => {
-      sizeToContainer();
-      fitCameraToRadius(2.2, 0.96);
-    };
-    window.addEventListener('resize', handleResize);
-
-    // Animation loop
     const animate = () => {
       requestAnimationFrame(animate);
 
-      // Smooth rotation interpolation
-      currentRotationRef.current.x += (targetRotationRef.current.x - currentRotationRef.current.x) * 0.05;
-      currentRotationRef.current.y += (targetRotationRef.current.y - currentRotationRef.current.y) * 0.05;
-
-      // Idle rotation when not interacting
-      if (!isMouseDownRef.current) {
-        targetRotationRef.current.y += 0.005;
-      }
-
+      earthRotationRef.current += 0.002;
       if (earthRef.current) {
-        earthRef.current.rotation.x = currentRotationRef.current.x;
-        earthRef.current.rotation.y = currentRotationRef.current.y;
+        earthRef.current.rotation.y = earthRotationRef.current;
       }
 
-      atmosphere.rotation.x = currentRotationRef.current.x;
-      atmosphere.rotation.y = currentRotationRef.current.y;
+      const controls = cameraControlsRef.current;
+      controls.phi += (controls.targetPhi - controls.phi) * 0.05;
+      controls.theta += (controls.targetTheta - controls.theta) * 0.05;
+      controls.radius += (controls.targetRadius - controls.radius) * 0.05;
+
+      updateCameraPosition();
 
       renderer.render(scene, camera);
     };
 
     animate();
 
-    // Cleanup
     return () => {
       if (canvasRef.current) {
         canvasRef.current.removeEventListener('mousedown', handleMouseDown);
+        canvasRef.current.removeEventListener('wheel', handleWheel);
       }
       document.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', sizeToContainer);
       
       if (rendererRef.current) {
         rendererRef.current.dispose();

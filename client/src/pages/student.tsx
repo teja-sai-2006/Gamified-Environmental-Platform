@@ -11,9 +11,17 @@ export default function StudentAppShell() {
   const Guard = useMemo(() => {
     if (role !== 'student') {
       return (
-        <div className="min-h-screen bg-space-gradient text-white p-6 flex flex-col items-center justify-center">
+        <div 
+          className="min-h-screen bg-space-gradient text-white p-6 flex flex-col items-center justify-center"
+          style={{
+            backgroundImage: `url(/api/image/44.jpg)`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        >
           <h1 className="text-3xl font-bold mb-4">Student Portal</h1>
-          <p className="text-earth-muted">Access denied. Please log in as a student.</p>
+          <p className="text-white/70">Access denied. Please log in as a student.</p>
         </div>
       );
     }
@@ -22,12 +30,23 @@ export default function StudentAppShell() {
   if (Guard) return Guard;
 
   return (
-    <div className="min-h-screen bg-space-gradient text-white p-6">
-      <div className="flex items-center justify-between mb-6">
-  <h1 className="text-3xl font-bold">Student Portal</h1>
-        <div className="flex gap-2 items-center">
-          <NotificationsBell />
-          <Button variant="secondary" onClick={clear}>Logout</Button>
+    <div 
+      className="min-h-screen bg-space-gradient text-white p-6"
+      style={{
+        backgroundImage: `url(/api/image/44.jpg)`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Glassmorphic header */}
+      <div className="bg-black/20 backdrop-blur-sm rounded-xl p-6 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-3xl font-bold">Student Portal</h1>
+          <div className="flex gap-2 items-center">
+            <NotificationsBell />
+            <Button variant="secondary" onClick={clear}>Logout</Button>
+          </div>
         </div>
       </div>
 
@@ -35,7 +54,7 @@ export default function StudentAppShell() {
 
       {/* Bottom bar */}
       <div className="fixed bottom-4 left-0 right-0 flex justify-center pointer-events-none">
-        <div className="pointer-events-auto rounded-full border border-[var(--earth-border)] bg-[var(--earth-card)] shadow-lg px-2 py-1">
+        <div className="pointer-events-auto rounded-full bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl px-2 py-1">
           <Button size="sm" variant="secondary" onClick={()=>setShowProfileEditor(true)}>Profile</Button>
         </div>
       </div>
@@ -47,7 +66,7 @@ function Section({ title, children }: { title: string; children?: React.ReactNod
   return (
     <section>
       <h2 className="text-xl font-semibold mb-3">{title}</h2>
-      <div className="p-4 rounded-lg bg-[var(--earth-card)] border border-[var(--earth-border)]">{children}</div>
+      <div className="p-4 rounded-lg bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl">{children}</div>
     </section>
   );
 }
@@ -115,22 +134,22 @@ function StudentProfileView() {
   return (
     <div className="space-y-6">
       {!profile ? (
-        <div className="text-earth-muted">Loading…</div>
+        <div className="text-white/70">Loading…</div>
       ) : (
         <>
           {/* Header card */}
-          <div className="relative p-4 rounded-lg bg-[var(--earth-card)] border border-[var(--earth-border)] flex items-center gap-4 overflow-hidden">
+          <div className="relative p-4 rounded-lg bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl flex items-center gap-4 overflow-hidden">
             {me?.photoDataUrl ? (
               <img src={me.photoDataUrl} alt="Avatar" className="h-16 w-16 rounded-full object-cover" />
             ) : (
-              <div className="h-16 w-16 rounded-full bg-[var(--earth-border)] flex items-center justify-center text-2xl">👩‍🎓</div>
+              <div className="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center text-2xl">👩‍🎓</div>
             )}
             <div className="flex-1">
-              <div className="text-lg font-semibold">{me?.name || 'Student'} <span className="text-earth-muted font-normal">(@{username})</span></div>
-              <div className="text-sm text-earth-muted">{schoolName || '—'}</div>
+              <div className="text-lg font-semibold">{me?.name || 'Student'} <span className="text-white/70 font-normal">(@{username})</span></div>
+              <div className="text-sm text-white/70">{schoolName || '—'}</div>
               {/* Profile completion */}
               <div className="mt-2">
-                <div className="flex items-center justify-between text-xs text-earth-muted mb-1">
+                <div className="flex items-center justify-between text-xs text-white/70 mb-1">
                   <span>Profile {Math.max(0, Math.min(100, Number(profile.profileCompletion || 0)))}% complete</span>
                   <span>Next goal: {ecoPoints >= 500 ? 'Maxed!' : ecoPoints >= 100 ? `${500 - ecoPoints} pts → Big Tree` : `${100 - ecoPoints} pts → Small Tree`}</span>
                 </div>
@@ -155,11 +174,11 @@ function StudentProfileView() {
                 <div className="flex items-center gap-4">
                   <div className="text-5xl animate-pulse" aria-hidden>{stageEmoji}</div>
                   <div className="flex-1">
-                    <div className="text-sm text-earth-muted mb-1">{profile.ecoTreeStage}</div>
-                    <div className="h-3 bg-[var(--earth-border)] rounded-full overflow-hidden">
+                    <div className="text-sm text-white/70 mb-1">{profile.ecoTreeStage}</div>
+                    <div className="h-3 bg-white/20 rounded-full overflow-hidden">
                       <div className="h-3 bg-gradient-to-r from-green-500 to-green-300" style={{ width: `${progress}%` }} />
                     </div>
-                    <div className="text-xs text-earth-muted mt-1">{ecoPoints >= 500 ? 'Max stage' : ecoPoints >= 100 ? `${ecoPoints - 100} / 400 to Big Tree` : `${ecoPoints} / 100 to Small Tree`}</div>
+                    <div className="text-xs text-white/70 mt-1">{ecoPoints >= 500 ? 'Max stage' : ecoPoints >= 100 ? `${ecoPoints - 100} / 400 to Big Tree` : `${ecoPoints} / 100 to Small Tree`}</div>
                   </div>
                 </div>
               </Section>
@@ -170,11 +189,11 @@ function StudentProfileView() {
                   {profile.achievements?.map((a: any) => {
                     const emoji = a.key === 'first_task' ? '🥇' : a.key === 'top10_school' ? '🏅' : '🧠';
                     return (
-                      <div key={a.key} className="p-3 rounded-lg bg-[var(--earth-card)] border border-[var(--earth-border)] flex items-center gap-3">
-                        <div className={`h-10 w-10 rounded-full flex items-center justify-center text-lg ${a.unlocked ? 'bg-emerald-600/40' : 'bg-[var(--earth-border)]'}`}>{emoji}</div>
+                      <div key={a.key} className="p-3 rounded-lg bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl flex items-center gap-3">
+                        <div className={`h-10 w-10 rounded-full flex items-center justify-center text-lg ${a.unlocked ? 'bg-emerald-600/40' : 'bg-white/20'}`}>{emoji}</div>
                         <div>
                           <div className="font-medium">{a.name}</div>
-                          <div className="text-xs text-earth-muted">{a.unlocked ? 'Unlocked' : 'Locked'}</div>
+                          <div className="text-xs text-white/70">{a.unlocked ? 'Unlocked' : 'Locked'}</div>
                         </div>
                       </div>
                     );
@@ -186,14 +205,14 @@ function StudentProfileView() {
               <Section title="Contribution Timeline">
                 <div className="space-y-3">
                   {(!profile.timeline || profile.timeline.length === 0) && (
-                    <p className="text-earth-muted text-sm">No contributions yet. Complete a task to begin your journey.</p>
+                    <p className="text-white/70 text-sm">No contributions yet. Complete a task to begin your journey.</p>
                   )}
                   {profile.timeline?.map((t: any, idx: number) => (
                     <div key={idx} className="relative pl-6">
-                      <div className="absolute left-2 top-2 h-full w-px bg-[var(--earth-border)]" />
+                      <div className="absolute left-2 top-2 h-full w-px bg-white/20" />
                       <div className="absolute left-0 top-2 h-4 w-4 rounded-full bg-emerald-500" />
-                      <div className="p-3 rounded-lg bg-[var(--earth-card)] border border-[var(--earth-border)]">
-                        <div className="text-xs text-earth-muted">{new Date(t.when).toLocaleString()}</div>
+                      <div className="p-3 rounded-lg bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl">
+                        <div className="text-xs text-white/70">{new Date(t.when).toLocaleString()}</div>
                         <div className="font-medium">
                           {t.kind === 'quiz' ? `Quiz attempted: ${t.title}` : t.kind === 'game' ? `Played game: ${t.title}` : t.title}
                         </div>
@@ -223,9 +242,9 @@ function StudentProfileView() {
                 <div>
                   <div className="text-sm">You're <span className="font-semibold">#{profile.ranks?.school || '-'}</span> in your school</div>
                   {profile.leaderboardNext ? (
-                    <div className="text-xs text-earth-muted mt-1">Next to beat <span className="text-white">@{profile.leaderboardNext.username}</span> with {profile.leaderboardNext.points} pts</div>
+                    <div className="text-xs text-white/70 mt-1">Next to beat <span className="text-white">@{profile.leaderboardNext.username}</span> with {profile.leaderboardNext.points} pts</div>
                   ) : (
-                    <div className="text-xs text-earth-muted mt-1">You're at the top! 🎉</div>
+                    <div className="text-xs text-white/70 mt-1">You're at the top! 🎉</div>
                   )}
                 </div>
               </Section>
@@ -237,7 +256,7 @@ function StudentProfileView() {
             <div className="flex items-center justify-between">
               <div>
                 <div className="font-medium">Allow other schools to view my profile</div>
-                <div className="text-xs text-earth-muted">Toggle visibility outside your school.</div>
+                <div className="text-xs text-white/70">Toggle visibility outside your school.</div>
               </div>
               <label className="inline-flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" className="accent-emerald-500" checked={!!profile.allowExternalView} onChange={togglePrivacy} disabled={saving} />
@@ -314,7 +333,7 @@ function StudentProfileEditor({ onClose }: { onClose: () => void }) {
   return (
     <Section title="Profile">
       {loading ? (
-        <div className="text-earth-muted">Loading…</div>
+        <div className="text-white/70">Loading…</div>
       ) : (
         <div className="space-y-4">
           <div className="flex items-center gap-4">
@@ -322,7 +341,7 @@ function StudentProfileEditor({ onClose }: { onClose: () => void }) {
               {data.photoDataUrl ? (
                 <img src={data.photoDataUrl} alt="Profile" className="h-20 w-20 object-cover rounded-full" />
               ) : (
-                <div className="h-20 w-20 rounded-full bg-[var(--earth-border)] flex items-center justify-center text-earth-muted">No Photo</div>
+                <div className="h-20 w-20 rounded-full bg-white/20 flex items-center justify-center text-white/70">No Photo</div>
               )}
             </div>
             <div>
@@ -331,24 +350,24 @@ function StudentProfileEditor({ onClose }: { onClose: () => void }) {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <label className="block">
-              <span className="block text-sm text-earth-muted mb-1">Username</span>
+              <span className="block text-sm text-white/70 mb-1">Username</span>
               <input className="w-full rounded-lg px-3 py-2 text-[var(--foreground)]" value={`@${data.username || username}`}
                 readOnly />
             </label>
             <label className="block">
-              <span className="block text-sm text-earth-muted mb-1">Role</span>
+              <span className="block text-sm text-white/70 mb-1">Role</span>
               <input className="w-full rounded-lg px-3 py-2 text-[var(--foreground)]" value={data.role || 'student'} readOnly />
             </label>
             <label className="block">
-              <span className="block text-sm text-earth-muted mb-1">Full Name</span>
+              <span className="block text-sm text-white/70 mb-1">Full Name</span>
               <input className="w-full rounded-lg px-3 py-2 text-[var(--foreground)]" value={data.name || ''} onChange={e => setData({ ...data, name: e.target.value })} />
             </label>
             <label className="block">
-              <span className="block text-sm text-earth-muted mb-1">Email</span>
+              <span className="block text-sm text-white/70 mb-1">Email</span>
               <input className="w-full rounded-lg px-3 py-2 text-[var(--foreground)]" value={data.email || ''} onChange={e => setData({ ...data, email: e.target.value })} />
             </label>
             <label className="block">
-              <span className="block text-sm text-earth-muted mb-1">School</span>
+              <span className="block text-sm text-white/70 mb-1">School</span>
               <select className="w-full rounded-lg px-3 py-2 text-[var(--foreground)]" value={data.schoolId || ''} onChange={e => setData({ ...data, schoolId: e.target.value })}>
                 <option value="">Select school…</option>
                 {schools.map(s => (
@@ -357,19 +376,19 @@ function StudentProfileEditor({ onClose }: { onClose: () => void }) {
               </select>
             </label>
             <label className="block">
-              <span className="block text-sm text-earth-muted mb-1">Student ID</span>
+              <span className="block text-sm text-white/70 mb-1">Student ID</span>
               <input className="w-full rounded-lg px-3 py-2 text-[var(--foreground)]" value={data.studentId || ''} onChange={e => setData({ ...data, studentId: e.target.value })} />
             </label>
             <label className="block">
-              <span className="block text-sm text-earth-muted mb-1">Roll Number</span>
+              <span className="block text-sm text-white/70 mb-1">Roll Number</span>
               <input className="w-full rounded-lg px-3 py-2 text-[var(--foreground)]" value={data.rollNumber || ''} onChange={e => setData({ ...data, rollNumber: e.target.value })} />
             </label>
             <label className="block">
-              <span className="block text-sm text-earth-muted mb-1">Class</span>
+              <span className="block text-sm text-white/70 mb-1">Class</span>
               <input className="w-full rounded-lg px-3 py-2 text-[var(--foreground)]" value={data.className || ''} onChange={e => setData({ ...data, className: e.target.value })} />
             </label>
             <label className="block">
-              <span className="block text-sm text-earth-muted mb-1">Section</span>
+              <span className="block text-sm text-white/70 mb-1">Section</span>
               <input className="w-full rounded-lg px-3 py-2 text-[var(--foreground)]" value={data.section || ''} onChange={e => setData({ ...data, section: e.target.value })} />
             </label>
           </div>
@@ -377,7 +396,7 @@ function StudentProfileEditor({ onClose }: { onClose: () => void }) {
             <Button className="bg-earth-orange hover:bg-earth-orange-hover" onClick={save} disabled={saving}>{saving ? 'Saving…' : 'Save Changes'}</Button>
             <Button variant="secondary" onClick={onClose}>Close</Button>
           </div>
-          <p className="text-xs text-earth-muted">Update your details. Changes will reflect in your profile header and timeline context.</p>
+          <p className="text-xs text-white/70">Update your details. Changes will reflect in your profile header and timeline context.</p>
         </div>
       )}
     </Section>
@@ -390,12 +409,12 @@ function WeeklyStreak({ days, start }: { days: boolean[]; start?: number }) {
     <div>
       <div className="flex gap-2">
         {labels.map((l, i) => (
-          <div key={i} className={`flex flex-col items-center text-xs ${days[i] ? 'text-white' : 'text-earth-muted'}`}>
+          <div key={i} className={`flex flex-col items-center text-xs ${days[i] ? 'text-white' : 'text-white/70'}`}>
             <div className={`h-6 w-6 rounded-full border flex items-center justify-center mb-1 ${days[i] ? 'bg-emerald-500/60 border-emerald-400' : 'border-[var(--earth-border)]'}`}>{l}</div>
           </div>
         ))}
       </div>
-      {start && <div className="text-[10px] text-earth-muted mt-2">Week of {new Date(start).toLocaleDateString()}</div>}
+      {start && <div className="text-[10px] text-white/70 mt-2">Week of {new Date(start).toLocaleDateString()}</div>}
     </div>
   );
 }
@@ -432,19 +451,19 @@ function NotificationsBell() {
   };
   return (
     <div className="relative">
-      <button onClick={toggle} className="relative h-9 w-9 grid place-items-center rounded-md border border-[var(--earth-border)] bg-[var(--earth-card)] hover:bg-white/5">
+      <button onClick={toggle} className="relative h-9 w-9 grid place-items-center rounded-md bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl hover:bg-white/15">
         <Bell size={16} />
         {unread > 0 && <span className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full bg-red-500 text-[10px] grid place-items-center">{unread}</span>}
       </button>
       {open && (
-        <div className="absolute right-0 mt-2 w-72 max-h-80 overflow-auto rounded-lg bg-[var(--earth-card)] border border-[var(--earth-border)] shadow-lg z-10">
-          <div className="p-2 text-xs text-earth-muted">Notifications</div>
-          <div className="divide-y divide-[var(--earth-border)]">
-            {items.length === 0 && <div className="p-3 text-xs text-earth-muted">No notifications</div>}
+        <div className="absolute right-0 mt-2 w-72 max-h-80 overflow-auto rounded-lg bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl z-10">
+          <div className="p-2 text-xs text-white/70">Notifications</div>
+          <div className="divide-y divide-white/10">
+            {items.length === 0 && <div className="p-3 text-xs text-white/70">No notifications</div>}
             {items.map((n, i) => (
               <div key={i} className="p-3 text-sm">
                 <div>{n.message}</div>
-                <div className="text-[10px] text-earth-muted">{new Date(n.createdAt).toLocaleString()}</div>
+                <div className="text-[10px] text-white/70">{new Date(n.createdAt).toLocaleString()}</div>
               </div>
             ))}
           </div>

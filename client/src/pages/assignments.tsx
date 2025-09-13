@@ -61,19 +61,30 @@ export default function AssignmentsPage() {
     }
   };
   return (
-    <div className="min-h-screen bg-space-gradient text-white p-6">
-      <h1 className="text-2xl md:text-3xl font-bold mb-4">Assignments</h1>
-      {loading ? <p className="text-earth-muted">Loading…</p> : (
+    <div 
+      className="min-h-screen bg-space-gradient text-white p-6"
+      style={{
+        backgroundImage: `url(/api/image/9898.jpg)`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Glassmorphic overlay for better readability */}
+      <div className="bg-black/20 backdrop-blur-sm rounded-xl p-6 mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold mb-4">Assignments</h1>
+      </div>
+      {loading ? <p className="text-white/70">Loading…</p> : (
         <div className="space-y-2">
           {list.length === 0 && <p className="text-sm text-earth-muted">No assignments yet.</p>}
           {list.map(row => {
             const a = row.assignment || row;
             const submission = row.submission;
             return (
-              <div key={a.id} className="p-3 rounded-lg bg-[var(--earth-card)] border border-[var(--earth-border)]">
-                <div className="font-medium">{a.title} <span className="text-xs text-earth-muted">• Max {a.maxPoints} pts</span></div>
-                {a.description && <div className="text-sm text-earth-muted">{a.description}</div>}
-                {a.deadline && <div className="text-xs text-earth-muted">Deadline: {a.deadline}</div>}
+              <div key={a.id} className="p-3 rounded-lg bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl">
+                <div className="font-medium">{a.title} <span className="text-xs text-white/70">• Max {a.maxPoints} pts</span></div>
+                {a.description && <div className="text-sm text-white/70">{a.description}</div>}
+                {a.deadline && <div className="text-xs text-white/60">Deadline: {a.deadline}</div>}
                 {submission ? (
                   <div className="text-xs text-earth-muted mt-2">Status: {submission.status}{typeof submission.points !== 'undefined' ? ` • ${submission.points} pts` : ''}</div>
                 ) : (
