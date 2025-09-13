@@ -83,50 +83,107 @@ export default function SignInPage() {
   }, [pendingUser]);
 
   return (
-    <div
-      className="min-h-screen w-full flex items-center justify-center"
+        <div
+      className="min-h-screen w-full flex items-center justify-center relative"
       style={{
-        backgroundImage: `url(/Gemini_Generated_Image_9g05hx9g05hx9g05.png)`,
+        backgroundImage: `url(/api/image/foster-lake.jpg)`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="bg-black bg-opacity-60 rounded-xl p-8 max-w-md w-full text-white shadow-lg">
-        <h1 className="text-3xl font-bold">Sign In</h1>
+      {/* Enhanced overlay for better contrast */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-blue-900/30 to-black/50"></div>
+      
+      {/* Glassmorphism container */}
+      <div className="relative z-10 bg-white/10 backdrop-blur-xl rounded-2xl p-8 max-w-md w-full text-white shadow-2xl border border-white/20 hover:bg-white/15 transition-all duration-300">
+        <div className="text-center mb-6">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">Sign In</h1>
+          <div className="w-16 h-1 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full mx-auto mt-2"></div>
+        </div>
+        
         {isAdminMode && (
-          <p className="mt-2 text-earth-muted text-sm">Admin sign-in: use username <span className="text-white">admin123</span> and your password.</p>
+          <p className="mb-4 text-blue-200 text-sm bg-blue-500/20 backdrop-blur-sm rounded-lg p-3 border border-blue-400/30">
+            Admin sign-in: use username <span className="text-white font-semibold">admin123</span> and your password.
+          </p>
         )}
-        <div className="mt-6 space-y-3">
+        
+        <div className="space-y-4">
           {pendingUser && (
-            <div className="p-3 rounded-lg bg-[var(--earth-card)] border border-[var(--earth-border)]">
-              <div className="font-medium">@{pendingUser}</div>
-              <div className="text-sm text-earth-muted">Your application is pending admin approval.</div>
-              <div className="text-xs text-earth-muted mt-1">We’ll check automatically and continue once approved{checking ? '…' : '.'}</div>
-              <div className="mt-2 flex gap-2">
-                <Button variant="secondary" onClick={() => setPendingUser(null)}>Back to Sign In</Button>
-                <Button variant="secondary" onClick={() => setPendingUser(pendingUser)} disabled>
+            <div className="p-4 rounded-xl bg-orange-500/20 backdrop-blur-sm border border-orange-400/30">
+              <div className="font-medium text-orange-100">@{pendingUser}</div>
+              <div className="text-sm text-orange-200">Your application is pending admin approval.</div>
+              <div className="text-xs text-orange-300 mt-1">We'll check automatically and continue once approved{checking ? '…' : '.'}</div>
+              <div className="mt-3 flex gap-2">
+                <Button 
+                  variant="secondary" 
+                  onClick={() => setPendingUser(null)}
+                  className="bg-white/10 backdrop-blur-sm hover:bg-white/20 border-white/20"
+                >
+                  Back to Sign In
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  disabled
+                  className="bg-orange-500/20 backdrop-blur-sm border-orange-400/30 cursor-not-allowed"
+                >
                   {checking ? 'Checking…' : 'Waiting'}
                 </Button>
               </div>
             </div>
           )}
-          <label className="block">
-            <span className="block text-sm text-earth-muted mb-1">Username</span>
-            <input className="w-full rounded-lg px-3 py-2 text-[var(--foreground)]" value={username} onChange={(e) => setUsername(e.target.value)} />
-          </label>
-          <label className="block">
-            <span className="block text-sm text-earth-muted mb-1">Password</span>
-            <input type="password" className="w-full rounded-lg px-3 py-2 text-[var(--foreground)]" value={password} onChange={(e) => setPassword(e.target.value)} />
-          </label>
-          {error && <div className="text-red-400 text-sm">{error}</div>}
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-blue-200 mb-2">Username</label>
+              <input 
+                className="w-full rounded-xl px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-all duration-200" 
+                placeholder="Enter your username"
+                value={username} 
+                onChange={(e) => setUsername(e.target.value)} 
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-blue-200 mb-2">Password</label>
+              <input 
+                type="password" 
+                className="w-full rounded-xl px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-all duration-200" 
+                placeholder="Enter your password"
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+              />
+            </div>
+          </div>
+          
+          {error && (
+            <div className="text-red-300 text-sm bg-red-500/20 backdrop-blur-sm rounded-lg p-3 border border-red-400/30">
+              {error}
+            </div>
+          )}
+          
           <div className="pt-2">
-            <Button className="bg-earth-orange hover:bg-earth-orange-hover" onClick={signin} disabled={loading || !username || !password}>
-              {loading ? 'Signing in…' : 'Sign In'}
+            <Button 
+              className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 border-0" 
+              onClick={signin} 
+              disabled={loading || !username || !password}
+            >
+              {loading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Signing in…
+                </div>
+              ) : (
+                'Sign In'
+              )}
             </Button>
           </div>
-          <div className="text-earth-muted text-sm">
-            New here? <a href="/signup" className="text-white underline">Create an account</a>
+          
+          <div className="text-center text-blue-200 text-sm">
+            New here? 
+            <a href="/signup" className="text-white font-semibold hover:text-blue-200 ml-1 underline underline-offset-2 transition-colors duration-200">
+              Create an account
+            </a>
           </div>
         </div>
       </div>

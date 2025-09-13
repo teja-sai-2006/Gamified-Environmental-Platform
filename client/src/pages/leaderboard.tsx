@@ -125,174 +125,237 @@ export default function LeaderboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-space-gradient text-white p-6">
-      <div className="flex items-center gap-3 mb-4">
-        {selectedSchool && (
-          <Button variant="secondary" size="sm" onClick={backToGlobal}>
-            <ArrowLeft size={14} className="mr-1" /> Back
-          </Button>
-        )}
-        <h1 className="text-3xl font-bold">Leaderboard</h1>
+    <div 
+      className="min-h-screen bg-space-gradient p-4 relative overflow-hidden"
+      style={{
+        backgroundImage: `url(/api/image/9999.jpg)`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Animated background elements */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-20 left-16 w-40 h-40 bg-yellow-400 rounded-full animate-pulse"></div>
+        <div className="absolute bottom-32 right-20 w-32 h-32 bg-amber-400 rounded-full animate-bounce delay-700"></div>
+        <div className="absolute top-1/2 left-1/3 w-28 h-28 bg-orange-400 rounded-full animate-pulse delay-1200"></div>
+        <div className="absolute bottom-20 left-1/4 w-24 h-24 bg-yellow-300 rounded-full animate-bounce delay-500"></div>
       </div>
-
-      {/* Header filters */}
-      <div className="flex flex-wrap items-center gap-2 mb-4">
-        <div className="inline-flex rounded-full border border-[var(--earth-border)] bg-[var(--earth-card)] p-1">
-          {(['global','school','class'] as const).map((s) => (
-            <button key={s} onClick={()=>setScope(s)} className={`px-3 py-1 rounded-full text-sm ${scope===s?'bg-white/10':'hover:bg-white/5'}`}>{s==='global'?'🌍 Global':s==='school'?'🏫 School':'👥 Class'}</button>
-          ))}
-        </div>
-        <div className="inline-flex rounded-full border border-[var(--earth-border)] bg-[var(--earth-card)] p-1 ml-2">
-          {(['schools','students','teachers'] as const).map((t)=> (
-            <button key={t} onClick={()=>setTab(t)} className={`px-3 py-1 rounded-full text-sm ${tab===t?'bg-white/10':'hover:bg-white/5'}`}>{t[0].toUpperCase()+t.slice(1)}</button>
-          ))}
-        </div>
-        {(tab==='students' || tab==='teachers') && (
-          <div className="ml-2">
-            <select value={schoolFilter} onChange={(e)=>setSchoolFilter(e.target.value)} className="rounded-md border border-[var(--earth-border)] bg-[var(--earth-card)] px-2 py-1 text-sm">
-              <option value="">All Schools</option>
-              {schoolsList.map(s => (<option key={s.id} value={s.id}>{s.name}</option>))}
-            </select>
+      
+      <div className="relative z-10">
+        <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-2xl mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            {selectedSchool && (
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                onClick={backToGlobal}
+                className="bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border border-white/20"
+              >
+                <ArrowLeft size={14} className="mr-1" /> Back
+              </Button>
+            )}
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-yellow-200 bg-clip-text text-transparent flex items-center gap-3">
+              Leaderboard <span className="text-3xl">🏆</span>
+            </h1>
           </div>
-        )}
-        <div className="ml-auto flex items-center gap-2 rounded-lg border border-[var(--earth-border)] bg-[var(--earth-card)] px-2">
-          <Search size={14} className="text-earth-muted" />
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search school or student…" className="bg-transparent outline-none text-sm py-1" />
-        </div>
-      </div>
+          <div className="w-24 h-1 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full mb-4"></div>
 
-      {!selectedSchool ? (
-        <div>
-          {tab === 'schools' && (
-            <>
-          <p className="mt-1 text-earth-muted">Global top schools ranked by eco-points.</p>
-          <div className="mt-4 rounded-lg border border-[var(--earth-border)] bg-[var(--earth-card)] overflow-hidden">
-            <div className="grid grid-cols-12 px-4 py-2 text-xs text-earth-muted border-b border-[var(--earth-border)]">
-              <div className="col-span-2">Rank</div>
-              <div className="col-span-4">School</div>
-              <div className="col-span-3">Top Student</div>
-              <div className="col-span-1 text-right">👥</div>
-              <div className="col-span-2 text-right">Eco-Points</div>
-            </div>
-            <div className="divide-y divide-[var(--earth-border)]">
-              {loading && <div className="px-4 py-6 text-earth-muted text-sm">Loading…</div>}
-              {schoolsError && <div className="px-4 py-6 text-red-300 text-sm">{schoolsError}</div>}
-              {(!loading && !schoolsError && (schools?.length ?? 0) === 0) && (
-                <div className="px-4 py-6 text-earth-muted text-sm">No schools yet.</div>
-              )}
-              {(schools || []).filter(s=>!search||s.schoolName.toLowerCase().includes(search.toLowerCase())).map((s, idx) => (
-                <HoverCard key={s.schoolId}>
-                  <HoverCardTrigger asChild>
-                    <button
-                      className="w-full grid grid-cols-12 px-4 py-3 hover:bg-white/5 text-left"
-                      onClick={() => loadStudents(s)}
-                    >
-                      <div className="col-span-2 flex items-center gap-2 text-sm">
-                        {idx===0?<Crown size={14} className="text-yellow-300"/>:<Trophy size={14} className={idx < 3 ? 'text-yellow-300' : 'text-earth-muted'} />}
-                        #{idx + 1}
-                      </div>
-                      <div className="col-span-4 flex items-center gap-2">
-                        <School size={16} className="text-emerald-300" />
-                        <span className="truncate">{s.schoolName}</span>
-                      </div>
-                      <div className="col-span-3 text-sm text-earth-muted">{/* Top student will be fetched in hover preview */}—</div>
-                      <div className="col-span-1 text-right text-earth-muted flex items-center justify-end gap-1">
-                        <Users size={14} /> {s.students}
-                      </div>
-                      <div className="col-span-2 text-right font-medium">{formatPoints(s.ecoPoints)}</div>
-                    </button>
-                  </HoverCardTrigger>
-                  <HoverCardContent>
-                    <SchoolHoverPreview schoolId={s.schoolId} fallback={{ schoolName: s.schoolName, ecoPoints: s.ecoPoints, students: s.students }} />
-                  </HoverCardContent>
-                </HoverCard>
+          {/* Header filters */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="bg-white/10 backdrop-blur-sm rounded-full border border-white/20 p-1">
+              {(['global','school','class'] as const).map((s) => (
+                <button 
+                  key={s} 
+                  onClick={()=>setScope(s)} 
+                  className={`px-4 py-2 rounded-full text-sm transition-all duration-200 ${
+                    scope===s
+                      ? 'bg-white/20 text-white shadow-lg' 
+                      : 'text-yellow-200 hover:bg-white/10'
+                  }`}
+                >
+                  {s==='global'?'🌍 Global':s==='school'?'🏫 School':'👥 Class'}
+                </button>
               ))}
             </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-full border border-white/20 p-1">
+              {(['schools','students','teachers'] as const).map((t)=> (
+                <button 
+                  key={t} 
+                  onClick={()=>setTab(t)} 
+                  className={`px-4 py-2 rounded-full text-sm transition-all duration-200 ${
+                    tab===t
+                      ? 'bg-white/20 text-white shadow-lg'
+                      : 'text-yellow-200 hover:bg-white/10'
+                  }`}
+                >
+                  {t[0].toUpperCase()+t.slice(1)}
+                </button>
+              ))}
+            </div>
+            {(tab==='students' || tab==='teachers') && (
+              <select 
+                value={schoolFilter} 
+                onChange={(e)=>setSchoolFilter(e.target.value)} 
+                className="rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 px-3 py-2 text-sm text-white focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400"
+              >
+                <option value="" className="bg-gray-800">All Schools</option>
+                {schoolsList.map(s => (<option key={s.id} value={s.id} className="bg-gray-800">{s.name}</option>))}
+              </select>
+            )}
+            <div className="ml-auto flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 px-3 py-2">
+              <Search size={16} className="text-yellow-200" />
+              <input 
+                value={search} 
+                onChange={e=>setSearch(e.target.value)} 
+                placeholder="Search..." 
+                className="bg-transparent outline-none text-sm text-white placeholder-yellow-200 w-32"
+              />
+            </div>
           </div>
-            </>
-          )}
-
-          {tab === 'students' && (
-            <div className="mt-4 rounded-lg border border-[var(--earth-border)] bg-[var(--earth-card)] overflow-hidden">
-              <div className="grid grid-cols-12 px-4 py-2 text-xs text-earth-muted border-b border-[var(--earth-border)]">
-                <div className="col-span-2">Rank</div>
-                <div className="col-span-4">Student</div>
-                <div className="col-span-4">School</div>
-                <div className="col-span-2 text-right">Eco-Points</div>
-              </div>
-              <div className="divide-y divide-[var(--earth-border)]">
-                {loadingTab && <div className="px-4 py-6 text-earth-muted text-sm">Loading…</div>}
-                {(!loadingTab && (globalStudents?.length ?? 0) === 0) && <div className="px-4 py-6 text-earth-muted text-sm">No students found.</div>}
-                {(globalStudents || []).filter(r => !search || r.username.toLowerCase().includes(search.toLowerCase()) || (r.name||'').toLowerCase().includes(search.toLowerCase()) || (r.schoolName||'').toLowerCase().includes(search.toLowerCase())).map((r, idx) => (
-                  <GlobalStudentRowItem key={r.username} row={r} rank={idx + 1} isMe={me === r.username} />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {tab === 'teachers' && (
-            <div className="mt-4 rounded-lg border border-[var(--earth-border)] bg-[var(--earth-card)] overflow-hidden">
-              <div className="grid grid-cols-12 px-4 py-2 text-xs text-earth-muted border-b border-[var(--earth-border)]">
-                <div className="col-span-2">Rank</div>
-                <div className="col-span-4">Teacher</div>
-                <div className="col-span-2">School</div>
-                <div className="col-span-2 text-right">Eco-Points</div>
-                <div className="col-span-1 text-right">Tasks</div>
-                <div className="col-span-1 text-right">Quizzes</div>
-              </div>
-              <div className="divide-y divide-[var(--earth-border)]">
-                {loadingTab && <div className="px-4 py-6 text-earth-muted text-sm">Loading…</div>}
-                {(!loadingTab && (teachers?.length ?? 0) === 0) && <div className="px-4 py-6 text-earth-muted text-sm">No teachers found.</div>}
-                {(teachers || []).filter(r => !search || r.username.toLowerCase().includes(search.toLowerCase()) || (r.name||'').toLowerCase().includes(search.toLowerCase()) || (r.schoolName||'').toLowerCase().includes(search.toLowerCase())).map((t, idx) => (
-                  <HoverCard key={t.username}>
-                    <HoverCardTrigger asChild>
-                      <div className="grid grid-cols-12 px-4 py-3 hover:bg-white/5">
-                        <div className="col-span-2 text-sm">#{idx + 1}</div>
-                        <div className="col-span-4 font-medium">@{t.username} {t.name && <span className="text-earth-muted ml-1">{t.name}</span>}</div>
-                        <div className="col-span-2 text-earth-muted">{t.schoolName || '—'}</div>
-                        <div className="col-span-2 text-right font-medium">{formatPoints(t.ecoPoints)}</div>
-                        <div className="col-span-1 text-right">{t.tasksCreated}</div>
-                        <div className="col-span-1 text-right">{t.quizzesCreated}</div>
-                      </div>
-                    </HoverCardTrigger>
-                    <HoverCardContent>
-                      <TeacherHoverPreview username={t.username} />
-                    </HoverCardContent>
-                  </HoverCard>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
-      ) : (
-        <div>
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-earth-muted text-xs">Global › School</div>
-              <h2 className="text-2xl font-semibold">{selectedSchool.schoolName}</h2>
-              <div className="text-sm text-earth-muted">Top students in this school</div>
-            </div>
-          </div>
 
-          <div className="mt-4 rounded-lg border border-[var(--earth-border)] bg-[var(--earth-card)] overflow-hidden">
-            <div className="grid grid-cols-12 px-4 py-2 text-xs text-earth-muted border-b border-[var(--earth-border)]">
+        {!selectedSchool ? (
+          <div>
+            {tab === 'schools' && (
+              <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl overflow-hidden">
+                <div className="bg-white/5 backdrop-blur-sm px-6 py-4 border-b border-white/10">
+                  <h2 className="text-xl font-semibold text-white">Top Schools</h2>
+                  <p className="text-yellow-200 text-sm">Global schools ranked by eco-points</p>
+                </div>
+                <div className="grid grid-cols-12 px-6 py-3 text-sm text-yellow-200 border-b border-white/10 bg-white/5">
+                  <div className="col-span-2">Rank</div>
+                  <div className="col-span-4">School</div>
+                  <div className="col-span-3">Top Student</div>
+                  <div className="col-span-1 text-right">👥</div>
+                  <div className="col-span-2 text-right">Eco-Points</div>
+                </div>
+                <div>
+                  {loading && <div className="px-6 py-8 text-yellow-200 text-center">Loading amazing schools...</div>}
+                  {schoolsError && <div className="px-6 py-8 text-red-300 text-center">{schoolsError}</div>}
+                  {(!loading && !schoolsError && (schools?.length ?? 0) === 0) && (
+                    <div className="px-6 py-8 text-yellow-200 text-center">No schools yet.</div>
+                  )}
+                  {(schools || []).filter(s=>!search||s.schoolName.toLowerCase().includes(search.toLowerCase())).map((s, idx) => (
+                    <HoverCard key={s.schoolId}>
+                      <HoverCardTrigger asChild>
+                        <button
+                          className="w-full grid grid-cols-12 px-6 py-4 hover:bg-white/5 text-left transition-all duration-200 border-b border-white/5 last:border-b-0"
+                          onClick={() => loadStudents(s)}
+                        >
+                          <div className="col-span-2 flex items-center gap-2 text-sm">
+                            {idx===0?
+                              <Crown size={16} className="text-yellow-400"/>:
+                              <Trophy size={16} className={idx < 3 ? 'text-yellow-400' : 'text-yellow-200'} />
+                            }
+                            <span className="font-semibold">#{idx + 1}</span>
+                          </div>
+                          <div className="col-span-4 flex items-center gap-2">
+                            <School size={18} className="text-emerald-400" />
+                            <span className="truncate font-medium text-white">{s.schoolName}</span>
+                          </div>
+                          <div className="col-span-3 text-sm text-yellow-200">—</div>
+                          <div className="col-span-1 text-right text-yellow-200 flex items-center justify-end gap-1">
+                            <Users size={14} /> <span className="font-medium">{s.students}</span>
+                          </div>
+                          <div className="col-span-2 text-right font-bold text-white text-lg">{formatPoints(s.ecoPoints)}</div>
+                        </button>
+                      </HoverCardTrigger>
+                      <HoverCardContent className="bg-gray-800/90 backdrop-blur-xl border-white/20">
+                        <SchoolHoverPreview schoolId={s.schoolId} fallback={{ schoolName: s.schoolName, ecoPoints: s.ecoPoints, students: s.students }} />
+                      </HoverCardContent>
+                    </HoverCard>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {tab === 'students' && (
+              <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl overflow-hidden">
+                <div className="bg-white/5 backdrop-blur-sm px-6 py-4 border-b border-white/10">
+                  <h2 className="text-xl font-semibold text-white">Top Students</h2>
+                  <p className="text-yellow-200 text-sm">Global students ranked by eco-points</p>
+                </div>
+                <div className="grid grid-cols-12 px-6 py-3 text-sm text-yellow-200 border-b border-white/10 bg-white/5">
+                  <div className="col-span-2">Rank</div>
+                  <div className="col-span-4">Student</div>
+                  <div className="col-span-4">School</div>
+                  <div className="col-span-2 text-right">Eco-Points</div>
+                </div>
+                <div>
+                  {loadingTab && <div className="px-6 py-8 text-yellow-200 text-center">Loading eco-champions...</div>}
+                  {(!loadingTab && (globalStudents?.length ?? 0) === 0) && <div className="px-6 py-8 text-yellow-200 text-center">No students found.</div>}
+                  {(globalStudents || []).filter(r => !search || r.username.toLowerCase().includes(search.toLowerCase()) || (r.name||'').toLowerCase().includes(search.toLowerCase()) || (r.schoolName||'').toLowerCase().includes(search.toLowerCase())).map((r, idx) => (
+                    <GlobalStudentRowItem key={r.username} row={r} rank={idx + 1} isMe={me === r.username} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {tab === 'teachers' && (
+              <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl overflow-hidden">
+                <div className="bg-white/5 backdrop-blur-sm px-6 py-4 border-b border-white/10">
+                  <h2 className="text-xl font-semibold text-white">Top Teachers</h2>
+                  <p className="text-yellow-200 text-sm">Educators making a difference</p>
+                </div>
+                <div className="grid grid-cols-12 px-6 py-3 text-sm text-yellow-200 border-b border-white/10 bg-white/5">
+                  <div className="col-span-2">Rank</div>
+                  <div className="col-span-4">Teacher</div>
+                  <div className="col-span-2">School</div>
+                  <div className="col-span-2 text-right">Eco-Points</div>
+                  <div className="col-span-1 text-right">Tasks</div>
+                  <div className="col-span-1 text-right">Quizzes</div>
+                </div>
+                <div>
+                  {loadingTab && <div className="px-6 py-8 text-yellow-200 text-center">Loading inspiring educators...</div>}
+                  {(!loadingTab && (teachers?.length ?? 0) === 0) && <div className="px-6 py-8 text-yellow-200 text-center">No teachers found.</div>}
+                  {(teachers || []).filter(r => !search || r.username.toLowerCase().includes(search.toLowerCase()) || (r.name||'').toLowerCase().includes(search.toLowerCase()) || (r.schoolName||'').toLowerCase().includes(search.toLowerCase())).map((t, idx) => (
+                    <HoverCard key={t.username}>
+                      <HoverCardTrigger asChild>
+                        <div className="grid grid-cols-12 px-6 py-4 hover:bg-white/5 transition-all duration-200 border-b border-white/5 last:border-b-0">
+                          <div className="col-span-2 text-sm font-semibold">#{idx + 1}</div>
+                          <div className="col-span-4 font-medium text-white">@{t.username} {t.name && <span className="text-yellow-200 ml-1">{t.name}</span>}</div>
+                          <div className="col-span-2 text-yellow-200">{t.schoolName || '—'}</div>
+                          <div className="col-span-2 text-right font-bold text-white">{formatPoints(t.ecoPoints)}</div>
+                          <div className="col-span-1 text-right font-medium">{t.tasksCreated}</div>
+                          <div className="col-span-1 text-right font-medium">{t.quizzesCreated}</div>
+                        </div>
+                      </HoverCardTrigger>
+                      <HoverCardContent className="bg-gray-800/90 backdrop-blur-xl border-white/20">
+                        <TeacherHoverPreview username={t.username} />
+                      </HoverCardContent>
+                    </HoverCard>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl overflow-hidden">
+            <div className="bg-white/5 backdrop-blur-sm px-6 py-4 border-b border-white/10">
+              <div className="text-yellow-200 text-sm mb-1">Global › School</div>
+              <h2 className="text-2xl font-semibold text-white">{selectedSchool.schoolName}</h2>
+              <div className="text-yellow-200">Top students in this school</div>
+            </div>
+
+            <div className="grid grid-cols-12 px-6 py-3 text-sm text-yellow-200 border-b border-white/10 bg-white/5">
               <div className="col-span-2">Rank</div>
               <div className="col-span-6">Student</div>
               <div className="col-span-4 text-right">Eco-Points</div>
             </div>
-            <div className="divide-y divide-[var(--earth-border)]">
-              {loadingStudents && <div className="px-4 py-6 text-earth-muted text-sm">Loading…</div>}
-              {studentsError && <div className="px-4 py-6 text-red-300 text-sm">{studentsError}</div>}
+            <div>
+              {loadingStudents && <div className="px-6 py-8 text-yellow-200 text-center">Loading students...</div>}
+              {studentsError && <div className="px-6 py-8 text-red-300 text-center">{studentsError}</div>}
               {(!loadingStudents && !studentsError && (students?.length ?? 0) === 0) && (
-                <div className="px-4 py-6 text-earth-muted text-sm">No students yet.</div>
+                <div className="px-6 py-8 text-yellow-200 text-center">No students yet.</div>
               )}
               {(students || []).map((u, idx) => (
                 <StudentRowItem key={u.username} row={u} rank={idx + 1} isMe={me === u.username} />
               ))}
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
@@ -339,14 +402,14 @@ function StudentRowItem({ row, rank, isMe }: { row: StudentRow; rank: number; is
   return (
     <HoverCard open={open} onOpenChange={(o)=>setOpen(o)}>
       <HoverCardTrigger asChild>
-        <div className="grid grid-cols-12 px-4 py-3 hover:bg-white/5 cursor-default" onMouseEnter={()=>setOpen(true)} onMouseLeave={()=>setOpen(false)}>
-          <div className="col-span-2 text-sm">#{rank}</div>
+        <div className="grid grid-cols-12 px-6 py-4 hover:bg-white/5 cursor-default transition-all duration-200 border-b border-white/5 last:border-b-0" onMouseEnter={()=>setOpen(true)} onMouseLeave={()=>setOpen(false)}>
+          <div className="col-span-2 text-sm font-semibold">#{rank}</div>
           <div className="col-span-6">
-            <span className="font-medium">@{row.username}</span>
-            {row.name && <span className="text-earth-muted ml-2">{row.name}</span>}
-            {isMe && <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-emerald-700/30 border border-emerald-600 text-emerald-200">you</span>}
+            <span className="font-medium text-white">@{row.username}</span>
+            {row.name && <span className="text-yellow-200 ml-2">{row.name}</span>}
+            {isMe && <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-200">you</span>}
           </div>
-          <div className="col-span-4 text-right font-medium">{formatPoints(row.ecoPoints)}</div>
+          <div className="col-span-4 text-right font-bold text-white text-lg">{formatPoints(row.ecoPoints)}</div>
         </div>
       </HoverCardTrigger>
       <StudentHoverPreview username={row.username} open={open} />
@@ -359,19 +422,19 @@ function GlobalStudentRowItem({ row, rank, isMe }: { row: GlobalStudentRow; rank
   return (
     <HoverCard open={open} onOpenChange={setOpen}>
       <HoverCardTrigger asChild>
-        <div className="grid grid-cols-12 px-4 py-3 hover:bg-white/5 cursor-default" onMouseEnter={()=>setOpen(true)} onMouseLeave={()=>setOpen(false)}>
-          <div className="col-span-2 text-sm">#{rank}</div>
+        <div className="grid grid-cols-12 px-6 py-4 hover:bg-white/5 cursor-default transition-all duration-200 border-b border-white/5 last:border-b-0" onMouseEnter={()=>setOpen(true)} onMouseLeave={()=>setOpen(false)}>
+          <div className="col-span-2 text-sm font-semibold">#{rank}</div>
           <div className="col-span-4">
-            <span className="font-medium">@{row.username}</span>
-            {row.name && <span className="text-earth-muted ml-2">{row.name}</span>}
-            {isMe && <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-emerald-700/30 border border-emerald-600 text-emerald-200">you</span>}
+            <span className="font-medium text-white">@{row.username}</span>
+            {row.name && <span className="text-yellow-200 ml-2">{row.name}</span>}
+            {isMe && <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-200">you</span>}
           </div>
-          <div className="col-span-4 text-earth-muted">{row.schoolName || '—'}</div>
-          <div className="col-span-2 text-right font-medium">{formatPoints(row.ecoPoints)}</div>
-          <div className="col-span-12 pl-6 mt-1 flex gap-2 text-sm text-amber-200">
-            {(row.achievements || []).slice(0,3).map((a: string, i: number)=>(<span key={i}>{a}</span>))}
+          <div className="col-span-4 text-yellow-200">{row.schoolName || '—'}</div>
+          <div className="col-span-2 text-right font-bold text-white text-lg">{formatPoints(row.ecoPoints)}</div>
+          <div className="col-span-12 pl-6 mt-2 flex gap-2 text-sm">
+            {(row.achievements || []).slice(0,3).map((a: string, i: number)=>(<span key={i} className="text-amber-300">{a}</span>))}
             {row.snapshot && (
-              <span className="text-xs text-earth-muted ml-auto">{row.snapshot.tasksApproved} tasks · {row.snapshot.quizzesCompleted} quizzes</span>
+              <span className="text-xs text-yellow-200 ml-auto">{row.snapshot.tasksApproved} tasks · {row.snapshot.quizzesCompleted} quizzes</span>
             )}
           </div>
         </div>

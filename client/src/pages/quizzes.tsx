@@ -100,10 +100,18 @@ export default function QuizzesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-space-gradient text-white p-6">
+    <div 
+      className="min-h-screen bg-space-gradient text-white p-6"
+      style={{
+        backgroundImage: `url(/api/image/66.jpg)`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-3xl font-bold">Quizzes</h1>
-        {role !== 'student' && <div className="text-sm text-earth-muted">Sign in as a student to attempt quizzes.</div>}
+        {role !== 'student' && <div className="text-sm text-white/70">Sign in as a student to attempt quizzes.</div>}
       </div>
 
       {!active ? (
@@ -142,22 +150,22 @@ function Section({ title, children }: { title: string; children?: React.ReactNod
   return (
     <section>
       <h2 className="text-xl font-semibold mb-3">{title}</h2>
-      <div className="p-4 rounded-lg bg-[var(--earth-card)] border border-[var(--earth-border)]">{children}</div>
+      <div className="p-4 rounded-lg bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl">{children}</div>
     </section>
   );
 }
 
 function QuizGrid({ list, onStart }: { list: any[]; onStart: (q:any)=>void }) {
-  if (!list || list.length === 0) return <p className="text-sm text-earth-muted">No quizzes yet.</p>;
+  if (!list || list.length === 0) return <p className="text-sm text-white/70">No quizzes yet.</p>;
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
       {list.map((q) => (
-        <div key={q.id} className="relative overflow-hidden rounded-xl border border-[var(--earth-border)] bg-gradient-to-br from-[var(--earth-card)] to-transparent hover:to-white/5 transition">
+        <div key={q.id} className="relative overflow-hidden rounded-xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl hover:bg-white/15 transition">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.06),transparent_60%)] pointer-events-none" />
           <div className="p-4">
             <div className="text-lg font-semibold">{q.title}</div>
-            {q.description && <div className="text-sm text-earth-muted line-clamp-2">{q.description}</div>}
-            <div className="text-xs text-earth-muted mt-1">{q.points} pts • {(q.questions?.length||0)} questions</div>
+            {q.description && <div className="text-sm text-white/70 line-clamp-2">{q.description}</div>}
+            <div className="text-xs text-white/70 mt-1">{q.points} pts • {(q.questions?.length||0)} questions</div>
             {q._attempt && <div className="text-xs text-emerald-400 mt-1">Attempted • {q._attempt.scorePercent}%</div>}
             <div className="mt-3">
               {q._attempt ? (
@@ -184,10 +192,10 @@ function QuizRunner({ quiz, idx, answers, onSelect, onNext, onPrev, onExit, onSu
       <div className="absolute -top-6 -left-6 h-24 w-24 rounded-full bg-emerald-500/10 blur-2xl" />
       <div className="absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-cyan-500/10 blur-2xl" />
       <div className="flex items-center justify-between mb-3">
-        <div className="text-sm text-earth-muted">Question {safeIdx+1} of {total}</div>
-        <button className="text-xs text-earth-muted underline" onClick={onExit}>Exit</button>
+        <div className="text-sm text-white/70">Question {safeIdx+1} of {total}</div>
+        <button className="text-xs text-white/70 underline" onClick={onExit}>Exit</button>
       </div>
-      <div className="p-4 rounded-lg border border-[var(--earth-border)] bg-white/5 backdrop-blur-sm shadow-2xl transition-transform duration-300">
+      <div className="p-4 rounded-lg bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl transition-transform duration-300">
         {!q ? (
           <div className="text-sm text-red-300">No questions available.</div>
         ) : (
@@ -225,7 +233,7 @@ function QuizRunner({ quiz, idx, answers, onSelect, onNext, onPrev, onExit, onSu
         {score != null && (
           <div className="mt-3 flex items-center justify-center gap-4 animate-fade-in">
             <div className="text-center">
-              <div className="text-sm text-earth-muted">Your score</div>
+              <div className="text-sm text-white/70">Your score</div>
               <div className="text-3xl font-bold">{score}%</div>
             </div>
             {locked && results && (
@@ -236,7 +244,7 @@ function QuizRunner({ quiz, idx, answers, onSelect, onNext, onPrev, onExit, onSu
           </div>
         )}
         {locked && reviewOpen && results && (
-          <div className="mt-3 text-center text-sm text-earth-muted">
+          <div className="mt-3 text-center text-sm text-white/70">
             {results.map((r) => {
               const inRange = r.index >= 0 && r.index < total;
               const options = inRange ? quiz.questions[r.index].options : [];
